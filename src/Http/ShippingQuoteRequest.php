@@ -152,10 +152,10 @@ class ShippingQuoteRequest extends AbstractRequest
          *
          * Eg. PT10H21M
          */
-        $request->setReadyTime(new \DateInterval('PT18H21M'));
+        $request->setReadyTime($this->getShipmentReadyTime());
+        $request->setReadyTimeGMTOffset($request->getDate()->format('P'));
 
         $convert = new Convert();
-//        $request->setReadyTimeGMTOffset('+01:00');
         $request->setDimensionUnit(strtoupper($convert->validateLengthUnit($this->getDimensionUnit()))); //IN, CM
         $request->setWeightUnit(strtoupper($convert->validateWeightUnit($this->getWeightUnit()))); //KG, LB
 
@@ -207,5 +207,23 @@ class ShippingQuoteRequest extends AbstractRequest
         $request->setQtdShp([$qtd_shp]);
 
         return $request;
+    }
+
+    /**
+     * @return \DateInterval
+     */
+    public function getShipmentReadyTime($default = 'PT18H21M')
+    {
+        return $this->hasParameter('shipment_ready_time')
+            ? $this->getParameter('shipment_ready_time')
+            : new \DateInterval($default);
+    }
+    /**
+     * @param  $ready_time_interval
+     * @return $this
+     */
+    public function setShipmentReadyTime(\DateInterval $ready_time_interval)
+    {
+        return $this->setParameter('shipment_ready_time', $ready_time_interval);
     }
 }
